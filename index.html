@@ -89,6 +89,7 @@
             margin-left: 5px;
             cursor: help;
             position: relative;
+            display: inline-block;
         }
 
         .question-mark::after {
@@ -109,14 +110,14 @@
             width: 200px;
             background-color: var(--secondary-color);
             color: var(--background-color);
-            text-align: center;
+            text-align: left;
             border-radius: 6px;
             padding: 5px;
             position: absolute;
             z-index: 1;
-            bottom: 125%;
+            top: 100%;
             left: 50%;
-            margin-left: -100px;
+            transform: translateX(-50%);
             opacity: 0;
             transition: opacity 0.3s;
         }
@@ -124,6 +125,15 @@
         .question-mark:hover .tooltip {
             visibility: visible;
             opacity: 1;
+        }
+
+        @media (max-width: 600px) {
+            .tooltip {
+                width: auto;
+                left: auto;
+                right: 0;
+                transform: none;
+            }
         }
 
         textarea {

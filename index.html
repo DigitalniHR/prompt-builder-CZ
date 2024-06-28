@@ -4,262 +4,87 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Prompt Builder</title>
-    <script>
-        // Customizable variables
-        const CONFIG = {
-            mainTitle: "Pomocník s prompty",
-            promptName: {
-                label: "Název promptu",
-                placeholder: "Např: HR dopis, Marketingový návrh...",
-                helpText: "Zadejte název pro tento prompt"
-            },
-            role: {
-                label: "Role",
-                placeholder: "Např: HR manažer, recruiter, korektor...",
-                helpText: "Určete, jako roli má AI mít"
-            },
-            task: {
-                label: "Úkol",
-                placeholder: "Např: Napiš vytýkací dopis zaměstnanci",
-                helpText: "Popište, jaký úkol chcete po AI splnit."
-            },
-            context: {
-                label: "Kontext",
-                placeholder: "Např: Řídil opilý vysokozdvižný vozík",
-                helpText: "Přidejte kontext a relevantní informace. Například detaily o firmě, o pozici apod."
-            },
-            format: {
-                label: "Formát",
-                placeholder: "Např: Délka A4, tón právní a důrazný",
-                helpText: "Určete délku textu, tón (např. formální, přátelský, vtipný, konverzační), strukturu (např. odrážky, tabulka), jazyk (česky, německy)."
-            },
-            mergedPrompt: {
-                label: "Složený prompt",
-                helpText: "Zkopírujte hotový prompt do četovacího okna v ChatGPT nebo Copilotu."
-            },
-            buttons: {
-                generate: "Vytvořit prompt",
-                copy: "📋 Zkopírovat"
-            },
-            promptTemplate: "Jsi {role}, Tvůj úkol je {task}, Vem v úvahu tyto informace: {context}, Požadovaný formát: {format}",
-            webhookUrl: "https://hook.eu1.make.com/vdjistei8qvpr3d85g6y0itfvgoyk97f"
-        };
-    </script>
     <style>
-        :root {
-            --primary-color: #333;
-            --secondary-color: #666;
-            --background-color: #E8FDFD;
-            --border-color: #ccc;
-            --button-color: #4CAF50;
-            --button-text-color: #fff;
-            --hover-color: #45a049;
-            --error-color: #ff0000;
-        }
-
         body {
             font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: var(--background-color);
-            color: var(--primary-color);
-        }
-
-        .container {
             max-width: 600px;
             margin: 0 auto;
+            padding: 20px;
         }
-
-        h1 {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
         .input-group {
             margin-bottom: 15px;
         }
-
         label {
-            display: flex;
-            align-items: center;
+            display: block;
             margin-bottom: 5px;
         }
-
-        .required::after {
-            content: "*";
-            color: var(--error-color);
-            margin-left: 5px;
-        }
-
-        .question-mark {
-            margin-left: 5px;
-            cursor: help;
-            position: relative;
-            display: inline-block;
-        }
-
-        .question-mark::after {
-            content: "?";
-            display: inline-block;
-            width: 16px;
-            height: 16px;
-            border-radius: 50%;
-            background-color: var(--secondary-color);
-            color: var(--background-color);
-            text-align: center;
-            font-size: 12px;
-            line-height: 16px;
-        }
-
-        .tooltip {
-            visibility: hidden;
-            width: 200px;
-            background-color: var(--secondary-color);
-            color: var(--background-color);
-            text-align: left;
-            border-radius: 6px;
-            padding: 5px;
-            position: absolute;
-            z-index: 1;
-            bottom: 125%;
-            left: -10px;
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-
-        .question-mark:hover .tooltip {
-            visibility: visible;
-            opacity: 1;
-        }
-
-        @media (max-width: 600px) {
-            .tooltip {
-                width: auto;
-                max-width: 200px;
-                left: auto;
-                right: 0;
-            }
-        }
-
         textarea {
             width: 100%;
             padding: 8px;
-            border: 1px solid var(--border-color);
+            border: 1px solid #ccc;
             border-radius: 4px;
-            resize: vertical;
         }
-
         button {
-            background-color: var(--button-color);
-            color: var(--button-text-color);
+            background-color: #4CAF50;
+            color: white;
             padding: 10px 15px;
             border: none;
             border-radius: 4px;
             cursor: pointer;
-            font-size: 16px;
-            transition: background-color 0.3s;
         }
-
-        button:hover {
-            background-color: var(--hover-color);
-        }
-
-        #generateButton {
-            margin-bottom: 20px;
-        }
-
-        #copyButton {
-            background-color: var(--secondary-color);
-            padding: 5px 10px;
-            font-size: 14px;
-        }
-
-        #copyButton:hover {
-            background-color: #555;
-        }
-
         .error-message {
-            color: var(--error-color);
+            color: red;
             font-size: 12px;
-            margin-top: 5px;
+        }
+        #generateButton {
+            margin-bottom: 20px; /* Add space after the button */
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1 id="mainTitle"></h1>
-        <div class="input-group">
-            <label for="promptName" class="required"><span id="promptNameLabel"></span> <span class="question-mark"><span class="tooltip" id="promptNameHelpText"></span></span></label>
-            <textarea id="promptName" rows="1"></textarea>
-            <div id="promptNameError" class="error-message"></div>
-        </div>
-        <div class="input-group">
-            <label for="role" class="required"><span id="roleLabel"></span> <span class="question-mark"><span class="tooltip" id="roleHelpText"></span></span></label>
-            <textarea id="role" rows="3"></textarea>
-            <div id="roleError" class="error-message"></div>
-        </div>
-        <div class="input-group">
-            <label for="task" class="required"><span id="taskLabel"></span> <span class="question-mark"><span class="tooltip" id="taskHelpText"></span></span></label>
-            <textarea id="task" rows="3"></textarea>
-            <div id="taskError" class="error-message"></div>
-        </div>
-        <div class="input-group">
-            <label for="context"><span id="contextLabel"></span> <span class="question-mark"><span class="tooltip" id="contextHelpText"></span></span></label>
-            <textarea id="context" rows="3"></textarea>
-        </div>
-        <div class="input-group">
-            <label for="format"><span id="formatLabel"></span> <span class="question-mark"><span class="tooltip" id="formatHelpText"></span></span></label>
-            <textarea id="format" rows="3"></textarea>
-        </div>
-        <button id="generateButton"></button>
-        <div class="input-group">
-            <label for="mergedPrompt"><span id="mergedPromptLabel"></span> <span class="question-mark"><span class="tooltip" id="mergedPromptHelpText"></span></span></label>
-            <textarea id="mergedPrompt" rows="6" readonly></textarea>
-        </div>
-        <button id="copyButton"></button>
+    <h1>Pomocník s prompty</h1>
+    <div class="input-group">
+        <label for="role">Role</label>
+        <textarea id="role" rows="3" placeholder="Např: HR manažer, recruiter, korektor..."></textarea>
+        <div id="roleError" class="error-message"></div>
     </div>
+    <div class="input-group">
+        <label for="task">Úkol</label>
+        <textarea id="task" rows="3" placeholder="Např: Napiš vytýkací dopis zaměstnanci"></textarea>
+        <div id="taskError" class="error-message"></div>
+    </div>
+    <div class="input-group">
+        <label for="context">Kontext</label>
+        <textarea id="context" rows="3" placeholder="Např: Řídil opilý vysokozdvižný vozík"></textarea>
+    </div>
+    <div class="input-group">
+        <label for="format">Formát</label>
+        <textarea id="format" rows="3" placeholder="Např: Délka A4, tón právní a důrazný"></textarea>
+    </div>
+    <button id="generateButton">Vytvořit prompt</button>
+    <div class="input-group">
+        <label for="mergedPrompt">Složený prompt</label>
+        <textarea id="mergedPrompt" rows="6" readonly></textarea>
+    </div>
+    <button id="copyButton">📋 Zkopírovat</button>
 
     <script>
-        // Populate the HTML with the config values
-        document.getElementById('mainTitle').textContent = CONFIG.mainTitle;
-        document.getElementById('promptNameLabel').textContent = CONFIG.promptName.label;
-        document.getElementById('promptNameHelpText').textContent = CONFIG.promptName.helpText;
-        document.getElementById('promptName').placeholder = CONFIG.promptName.placeholder;
-        document.getElementById('roleLabel').textContent = CONFIG.role.label;
-        document.getElementById('roleHelpText').textContent = CONFIG.role.helpText;
-        document.getElementById('role').placeholder = CONFIG.role.placeholder;
-        document.getElementById('taskLabel').textContent = CONFIG.task.label;
-        document.getElementById('taskHelpText').textContent = CONFIG.task.helpText;
-        document.getElementById('task').placeholder = CONFIG.task.placeholder;
-        document.getElementById('contextLabel').textContent = CONFIG.context.label;
-        document.getElementById('contextHelpText').textContent = CONFIG.context.helpText;
-        document.getElementById('context').placeholder = CONFIG.context.placeholder;
-        document.getElementById('formatLabel').textContent = CONFIG.format.label;
-        document.getElementById('formatHelpText').textContent = CONFIG.format.helpText;
-        document.getElementById('format').placeholder = CONFIG.format.placeholder;
-        document.getElementById('mergedPromptLabel').textContent = CONFIG.mergedPrompt.label;
-        document.getElementById('mergedPromptHelpText').textContent = CONFIG.mergedPrompt.helpText;
-        document.getElementById('generateButton').textContent = CONFIG.buttons.generate;
-        document.getElementById('copyButton').textContent = CONFIG.buttons.copy;
+        const CONFIG = {
+            promptTemplate: "Jsi {role}, Tvůj úkol je {task}, Vem v úvahu tyto informace: {context}, Požadovaný formát: {format}",
+            webhookUrl: "https://hook.eu1.make.com/vdjistei8qvpr3d85g6y0itfvgoyk97f",
+            repositoryName: "your-repository-name"
+        };
 
         document.getElementById('generateButton').addEventListener('click', generatePrompt);
         document.getElementById('copyButton').addEventListener('click', copyMergedPrompt);
 
         function generatePrompt() {
-            const promptName = document.getElementById('promptName');
             const role = document.getElementById('role');
             const task = document.getElementById('task');
             const context = document.getElementById('context');
             const format = document.getElementById('format');
 
             let isValid = true;
-
-            if (!promptName.value.trim()) {
-                document.getElementById('promptNameError').textContent = 'Povinné pole';
-                isValid = false;
-            } else {
-                document.getElementById('promptNameError').textContent = '';
-            }
 
             if (!role.value.trim()) {
                 document.getElementById('roleError').textContent = 'Povinné pole';
@@ -287,9 +112,8 @@
 
             document.getElementById('mergedPrompt').value = mergedPrompt;
 
-            // Send data to webhook silently
             sendToWebhook({
-                promptName: promptName.value,
+                repositoryName: CONFIG.repositoryName,
                 role: role.value,
                 task: task.value,
                 context: context.value,

